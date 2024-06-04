@@ -1,0 +1,126 @@
+.navbar-brand {
+    flex-grow: 1; /* Permite que el contenido (incluido el botón del carrito) se extienda hacia la derecha */
+}
+
+/* Estilos para el carrito desplegable */
+.cart-dropdown {
+    display: flex;
+    align-items: center;
+    margin-right: 20px; /* Añadido margen derecho para separar el botón del carrito de los otros elementos de la barra de navegación */
+}
+
+.cart-content {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 250px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: none;
+    overflow-y: auto;
+    z-index: 1000; /* Añadido un índice Z alto para que esté por encima del contenido principal */
+}
+
+.cart-dropdown .cart-content.show {
+    display: block;
+}
+
+.navbar-brand {
+    flex-grow: 1; /* Permite que el contenido (incluido el botón del carrito) se extienda hacia la derecha */
+}
+
+
+.cart-dropdown .btn {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cart-dropdown .remove-item {
+    background-color: #dc3545; /* Color rojo para el botón de eliminar */
+}
+
+.cart-dropdown .increase-quantity,
+.cart-dropdown .decrease-quantity {
+    background-color: #339af0; /* Azul un poco más claro para los botones de incrementar y decrementar */
+}
+
+.cart-dropdown .cart-content {
+    width: 250px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: none;
+    overflow-y: auto;
+}
+
+.cart-dropdown .cart-content.show {
+    display: block;
+}
+
+.cart-dropdown .cart-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-dropdown .cart-item img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.cart-dropdown .cart-item .item-details {
+    flex-grow: 1;
+}
+
+.cart-dropdown .cart-item .item-details p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.cart-dropdown .cart-item .item-details .item-name {
+    font-weight: bold;
+}
+
+.cart-dropdown .cart-item .item-actions {
+    display: flex;
+    align-items: center;
+}
+
+.cart-dropdown .cart-item .item-actions button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 4px 8px;
+    margin-left: 5px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.cart-dropdown .cart-item .item-actions button:hover {
+    background-color: #0056b3;
+}
+
+.cart-dropdown .cart-item .item-actions button.remove-item {
+    background-color: #dc3545; /* Color rojo para el botón de eliminar */
+}
+
+.cart-dropdown .cart-item .item-actions button.increase-quantity,
+.cart-dropdown .cart-item .item-actions button.decrease-quantity {
+    background-color: #339af0; /* Azul un poco más claro para los botones de incrementar y decrementar */
+}
+
+.cart-dropdown .cart-item .item-actions button:hover.increase-quantity,
+.cart-dropdown .cart-item .item-actions button:hover.decrease-quantity {
+    background-color: #007bff; /* Color original al hacer hover en los botones de incrementar y decrementar */
+}
