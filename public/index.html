@@ -10,10 +10,8 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <!-- Agregado un contenedor div para alinear el carrito -->
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Ferremax</a>
-            <!-- Se movió el carrito al final -->
             <div class="cart-dropdown">
                 <button class="btn btn-primary" id="view-cart"><i class="fas fa-shopping-cart"></i></button>
                 <div class="cart-content">
@@ -27,10 +25,6 @@
 
     <div class="container mt-5" id="products-container"></div>
 
-
-
-    <div class="container mt-5" id="products-container"></div>
-
     <script>
         // Función para limpiar el carrito al inicio de la aplicación
         function clearCartOnStartup() {
@@ -39,7 +33,7 @@
         window.onload = clearCartOnStartup;
 
         // Función para agregar un producto al carrito
-        function addToCart(productId, productName, productPrice) {
+        function addToCart(productId, productName, productPriceCLP, productPriceUSD) {
             if (!productId || productId === 'undefined') {
                 console.error('ID de producto no válido:', productId);
                 return;
@@ -51,7 +45,7 @@
             if (existingProductIndex !== -1) {
                 cart[existingProductIndex].quantity += 1;
             } else {
-                cart.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
+                cart.push({ id: productId, name: productName, priceCLP: productPriceCLP, priceUSD: productPriceUSD, quantity: 1 });
             }
 
             localStorage.setItem('cart', JSON.stringify(cart));
@@ -64,31 +58,32 @@
         // Actualiza el total del carrito en la interfaz
         function updateTotalUI(cartItems) {
             const totalElement = document.getElementById('total');
-            const total = calculateTotal(cartItems);
-            totalElement.textContent = `Total: $${total}`;
+            const totalCLP = calculateTotal(cartItems, 'priceCLP');
+            const totalUSD = calculateTotal(cartItems, 'priceUSD');
+            totalElement.innerHTML = `Total: $${totalCLP} CLP / $${totalUSD} USD`;
         }
 
         // Función para calcular el total de la compra
-        function calculateTotal(cartItems) {
+        function calculateTotal(cartItems, priceKey) {
             let total = 0;
             cartItems.forEach(item => {
-                total += item.price * item.quantity;
+                total += item[priceKey] * item.quantity;
             });
-            return total;
+            return total.toFixed(2);
         }
 
         // Hacer una solicitud para obtener los productos
         fetch('/api/products')
             .then(response => response.json())
             .then(products => {
-                console.log('Productos obtenidos:', products); // Verifica la estructura de los productos
+                console.log('Productos obtenidos:', products);
                 const productsContainer = document.getElementById('products-container');
                 products.forEach(product => {
-                    // Verifica que el ID del producto esté presente
                     console.log('ID del producto:', product._id);
                     const productId = product._id ? product._id : 'undefined';
                     const productName = product.producto.nombre;
-                    const productPrice = product.producto.precio[0].valor;
+                    const productPriceCLP = product.priceCLP;
+                    const productPriceUSD = product.priceUSD;
                     const productElement = document.createElement('div');
                     productElement.classList.add('card', 'mb-3');
                     productElement.innerHTML = `
@@ -96,8 +91,8 @@
                             <img src="/img/ref.jpg" style="width: 100px; height: auto;">
                             <h5 class="card-title">${product.producto.nombre}</h5>
                             <p class="card-text">${product.producto.material}</p>
-                            <p class="card-text">Precio: ${product.producto.precio[0].valor}</p>
-                            <button class="btn btn-primary add-to-cart" data-id="${productId}" data-name="${productName}" data-price="${productPrice}">Agregar al carrito</button>
+                            <p class="card-text">Precio: $${productPriceCLP} CLP / $${productPriceUSD} USD</p>
+                            <button class="btn btn-primary add-to-cart" data-id="${productId}" data-name="${productName}" data-price-clp="${productPriceCLP}" data-price-usd="${productPriceUSD}">Agregar al carrito</button>
                         </div>
                     `;
                     productsContainer.appendChild(productElement);
@@ -108,9 +103,10 @@
                     button.addEventListener('click', () => {
                         const productId = button.getAttribute('data-id');
                         const productName = button.getAttribute('data-name');
-                        const productPrice = button.getAttribute('data-price');
-                        console.log('Product ID del botón:', productId); // Verifica el ID al hacer clic
-                        addToCart(productId, productName, productPrice);
+                        const productPriceCLP = button.getAttribute('data-price-clp');
+                        const productPriceUSD = button.getAttribute('data-price-usd');
+                        console.log('Product ID del botón:', productId);
+                        addToCart(productId, productName, productPriceCLP, productPriceUSD);
                     });
                 });
 
@@ -136,13 +132,13 @@
                     <img src="/img/ref.jpg" alt="${item.name}">
                     <div>
                         <p>${item.name}</p>
-                        <p>Precio: ${item.price}</p>
+                        <p>Precio: $${item.priceCLP} CLP / $${item.priceUSD} USD</p>
                         <div>
                             <button class="btn btn-secondary btn-sm decrease-quantity" data-id="${item.id}">-</button>
                             <span>${item.quantity}</span>
                             <button class="btn btn-secondary btn-sm increase-quantity" data-id="${item.id}">+</button>
                         </div>
-                        <button class="btn btn btn-danger btn-sm remove-item" data-id="${item.id}">Eliminar</button>
+                        <button class="btn btn-danger btn-sm remove-item" data-id="${item.id}">Eliminar</button>
                     </div>
                 `;
                 cartItemsContainer.appendChild(productElement);
@@ -208,7 +204,8 @@
         // Función para manejar el clic en el botón de pagar
         document.getElementById("payButton").addEventListener("click", async () => {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const total = calculateTotal(cart);
+            const totalCLP = calculateTotal(cart, 'priceCLP');
+            const totalUSD = calculateTotal(cart, 'priceUSD');
             
             const createResponse = await fetch("/payment/createTransaction", {
                 method: 'POST',
@@ -218,7 +215,7 @@
                 body: JSON.stringify({
                     buyOrder: "O-5111", // Orden de compra fija para pruebas
                     sessionId: "S-75821", // ID de sesión fijo para pruebas
-                    amount: total, // Monto basado en el carrito de compras
+                    amount: totalCLP, // Monto basado en el carrito de compras en CLP
                     returnUrl: "http://tbk-node-test.continuumhq.dev/webpay_plus/commit"
                 })
             }).then(response => response.json());
@@ -234,4 +231,3 @@
     </script>
 </body>
 </html>
-
